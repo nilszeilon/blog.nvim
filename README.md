@@ -14,17 +14,34 @@ A minimal Neovim plugin for writing and publishing blogs directly to GitHub Page
 Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
-{
-  "nilszeilon/blog.nvim",
-  config = function()
-    require("blog").setup({
-      blog_dir = vim.fn.expand("~/blog"), -- Where to store your blog
-      posts_dir = "posts",                    -- Subdirectory for posts
-      date_format = "%Y-%m-%d",               -- Date format for filenames
-      frontmatter = true,                     -- Use frontmatter in posts
-    })
-  end
+
+-- For lazy.nvim users:
+return {
+	"nilszeilon/blog.nvim",
+	lazy = true,
+	cmd = { "BlogNew", "BlogList", "BlogBuild" },
+	config = function()
+		require("blog").setup({
+			-- Where your blog files will be stored
+			blog_dir = vim.fn.expand("~/nvim-blog"),
+
+			-- Subdirectory for markdown posts
+			posts_dir = "posts",
+
+			-- Date format for post filenames
+			date_format = "%Y-%m-%d",
+
+			-- Whether to use frontmatter (recommended)
+			frontmatter = true,
+		})
+	end,
+	keys = {
+		{ "<leader>bn", "<cmd>BlogNew<cr>", desc = "New blog post" },
+		{ "<leader>bl", "<cmd>BlogList<cr>", desc = "List blog posts" },
+		{ "<leader>bb", "<cmd>BlogBuild<cr>", desc = "Build blog" },
+	},
 }
+
 ```
 
 ## Usage
@@ -54,7 +71,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 ### Blog Structure
 
 ```
-~/my-blog/
+~/nvim-blog/
 ├── index.html          # Generated home page
 ├── posts/              # Your markdown posts
 │   ├── 2024-01-15-my-first-post.md
