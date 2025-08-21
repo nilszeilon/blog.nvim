@@ -154,66 +154,28 @@ function M.generate_html(posts)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Blog</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1 {
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-        }
-        .post-list {
-            list-style: none;
-            padding: 0;
-        }
-        .post-item {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .post-item:last-child {
-            border-bottom: none;
-        }
-        .post-title {
-            font-size: 1.3em;
-            margin-bottom: 5px;
-        }
-        .post-title a {
-            color: #333;
-            text-decoration: none;
-        }
-        .post-title a:hover {
-            color: #0066cc;
-        }
-        .post-date {
-            color: #666;
-            font-size: 0.9em;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>My Blog</h1>
-    <ul class="post-list">
+<body class="bg-gray-50 text-gray-900 font-sans leading-relaxed">
+    <div class="max-w-3xl mx-auto px-6 py-8">
+        <h1 class="text-4xl font-bold mb-8 pb-4 border-b-2 border-gray-900">My Blog</h1>
+        <ul class="space-y-6">
 ]]
 
   for _, post in ipairs(posts) do
     index_html = index_html .. string.format([[
-        <li class="post-item">
-            <div class="post-title">
-                <a href="%s">%s</a>
+        <li class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="text-xl font-semibold mb-2">
+                <a href="%s" class="text-gray-900 hover:text-blue-600 transition-colors">%s</a>
             </div>
-            <div class="post-date">%s</div>
+            <div class="text-gray-600 text-sm">%s</div>
         </li>
 ]], post.filename, post.title, post.date)
   end
 
   index_html = index_html .. [[
-    </ul>
+        </ul>
+    </div>
 </body>
 </html>]]
 
@@ -225,61 +187,21 @@ function M.generate_html(posts)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>%s</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .back-link {
-            margin-bottom: 20px;
-        }
-        .back-link a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        .back-link a:hover {
-            text-decoration: underline;
-        }
-        .post-date {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-        }
-        h1 {
-            margin-bottom: 10px;
-        }
-        pre {
-            background: #f4f4f4;
-            padding: 15px;
-            overflow-x: auto;
-            border-radius: 5px;
-        }
-        code {
-            background: #f4f4f4;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-        blockquote {
-            border-left: 4px solid #ddd;
-            margin-left: 0;
-            padding-left: 20px;
-            color: #666;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="back-link">
-        <a href="index.html">← Back to posts</a>
+<body class="bg-gray-50 text-gray-900 font-sans leading-relaxed">
+    <div class="max-w-3xl mx-auto px-6 py-8">
+        <div class="mb-6">
+            <a href="index.html" class="text-blue-600 hover:text-blue-700 transition-colors">← Back to posts</a>
+        </div>
+        <article class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+            <h1 class="text-4xl font-bold mb-4">%s</h1>
+            <div class="text-gray-600 text-sm mb-8 pb-4 border-b border-gray-200">%s</div>
+            <div class="prose prose-gray max-w-none">
+                %s
+            </div>
+        </article>
     </div>
-    <article>
-        <h1>%s</h1>
-        <div class="post-date">%s</div>
-        %s
-    </article>
 </body>
 </html>]]
 
