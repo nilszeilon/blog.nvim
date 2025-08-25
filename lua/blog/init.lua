@@ -5,6 +5,9 @@ M.config = {
   posts_dir = "posts",
   date_format = "%Y-%m-%d",
   frontmatter = true,
+  -- Custom HTML generators (optional)
+  generate_index_html = nil,  -- function(posts) return html_string end
+  generate_post_html = nil,   -- function(post, body_html) return html_string end
 }
 
 local function ensure_dir(path)
@@ -147,8 +150,14 @@ end
 
 function M.generate_html(posts)
   local blog_dir = M.config.blog_dir
+  local index_html
 
-  local index_html = [[<!DOCTYPE html>
+  -- Use custom index generator if provided
+  if M.config.generate_index_html then
+    index_html = M.config.generate_index_html(posts)
+  else
+    -- Default index HTML
+    index_html = [[<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -162,8 +171,8 @@ function M.generate_html(posts)
         <ul class="space-y-6">
 ]]
 
-  for _, post in ipairs(posts) do
-    index_html = index_html .. string.format([[
+    for _, post in ipairs(posts) do
+      index_html = index_html .. string.format([[
         <li class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
             <div class="text-xl font-semibold mb-2">
                 <a href="%s" class="text-gray-900 hover:text-blue-600 transition-colors">%s</a>
@@ -171,39 +180,16 @@ function M.generate_html(posts)
             <div class="text-gray-600 text-sm">%s</div>
         </li>
 ]], post.filename, post.title, post.date)
-  end
+    end
 
-  index_html = index_html .. [[
+    index_html = index_html .. [[
         </ul>
     </div>
 </body>
 </html>]]
+  end
 
   vim.fn.writefile(vim.split(index_html, "\n"), blog_dir .. "/index.html")
-
-  local post_template = [[<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>%s</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 text-gray-900 font-sans leading-relaxed">
-    <div class="max-w-3xl mx-auto px-6 py-8">
-        <div class="mb-6">
-            <a href="index.html" class="text-blue-600 hover:text-blue-700 transition-colors">← Back to posts</a>
-        </div>
-        <article class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-            <h1 class="text-4xl font-bold mb-4">%s</h1>
-            <div class="text-gray-600 text-sm mb-8 pb-4 border-b border-gray-200">%s</div>
-            <div class="prose prose-gray max-w-none">
-                %s
-            </div>
-        </article>
-    </div>
-</body>
-</html>]]
 
   for _, post in ipairs(posts) do
     local content = vim.fn.readfile(post.md_file)
@@ -226,7 +212,39 @@ function M.generate_html(posts)
     local body_md = table.concat(body_lines, "\n")
     local body_html = M.simple_md_to_html(body_md)
     
-    local html = string.format(post_template, post.title, post.title, post.date, body_html)
+    local html
+    
+    -- Use custom post generator if provided
+    if M.config.generate_post_html then
+      html = M.config.generate_post_html(post, body_html)
+    else
+      -- Default post template
+      local post_template = [[<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>%s</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans leading-relaxed">
+    <div class="max-w-3xl mx-auto px-6 py-8">
+        <div class="mb-6">
+            <a href="index.html" class="text-blue-600 hover:text-blue-700 transition-colors">← Back to posts</a>
+        </div>
+        <article class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+            <h1 class="text-4xl font-bold mb-4">%s</h1>
+            <div class="text-gray-600 text-sm mb-8 pb-4 border-b border-gray-200">%s</div>
+            <div class="prose prose-gray max-w-none">
+                %s
+            </div>
+        </article>
+    </div>
+</body>
+</html>]]
+      html = string.format(post_template, post.title, post.title, post.date, body_html)
+    end
+    
     local html_path = blog_dir .. "/" .. post.filename
     vim.fn.writefile(vim.split(html, "\n"), html_path)
   end

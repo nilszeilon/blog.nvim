@@ -44,6 +44,90 @@ return {
 
 ```
 
+## Configuration
+
+### Basic Setup
+
+```lua
+require("blog").setup({
+  blog_dir = "~/my-blog",      -- Where to generate the blog
+  posts_dir = "posts",          -- Directory for markdown posts
+  date_format = "%Y-%m-%d",     -- Date format in frontmatter
+  frontmatter = true,           -- Use YAML frontmatter
+})
+```
+
+### Custom HTML Templates
+
+You can override the default HTML generation by providing custom functions in your config:
+
+```lua
+require("blog").setup({
+	blog_dir = vim.fn.expand("~/my-blog"),
+  
+  -- Custom index page generator
+  generate_index_html = function(posts)
+    local html = [[<!DOCTYPE html>
+<html>
+<head>
+    <title>My Personal Blog</title>
+    <style>
+        body { font-family: Georgia, serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #333; border-bottom: 2px solid #333; }
+        .post { margin: 20px 0; padding: 15px; background: #f5f5f5; }
+        .post a { color: #0066cc; text-decoration: none; }
+        .date { color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to My Blog</h1>
+    <div class="posts">
+]]
+    
+    for _, post in ipairs(posts) do
+      html = html .. string.format([[
+        <div class="post">
+            <h2><a href="%s">%s</a></h2>
+            <div class="date">%s</div>
+        </div>
+]], post.filename, post.title, post.date)
+    end
+    
+    html = html .. [[
+    </div>
+</body>
+</html>]]
+    return html
+  end,
+  
+  -- Custom post page generator
+  generate_post_html = function(post, body_html)
+    return string.format([[<!DOCTYPE html>
+<html>
+<head>
+    <title>%s - My Blog</title>
+    <style>
+        body { font-family: Georgia, serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #333; }
+        .meta { color: #666; font-style: italic; margin-bottom: 30px; }
+        .content { line-height: 1.6; }
+        .back { margin-bottom: 20px; }
+        .back a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="back"><a href="index.html">← Back to all posts</a></div>
+    <article>
+        <h1>%s</h1>
+        <div class="meta">Published on %s</div>
+        <div class="content">%s</div>
+    </article>
+</body>
+</html>]], post.title, post.title, post.date, body_html)
+  end,
+})
+```
+
 ## Usage
 
 ### Commands
@@ -71,7 +155,7 @@ return {
 ### Blog Structure
 
 ```
-~/nvim-blog/
+~/my-blog/
 ├── index.html          # Generated home page
 ├── posts/              # Your markdown posts
 │   ├── 2024-01-15-my-first-post.md
